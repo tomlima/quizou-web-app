@@ -12,6 +12,26 @@ export const useTagStore = defineStore("tag", {
   }),
   actions: {
     /**
+     * This method try to find a tag object 
+     * that have a specific name. 
+     * @param {string} name - The tag name 
+     * @returns { Tag | null } 
+    */
+    getTagByName(name: string): Tag | null {
+      // Check the tag list 
+      if (!this.tags || this.tags.items.length < 1) {
+        return null;
+      }
+
+      // Try to find the matched tag  
+      const tag = this.tags.items.find((t: Tag) => t.name == name);
+      if (tag) {
+        return tag;
+      }
+      return null;
+    },
+
+    /**
      * This method open the 
      * modal for edit a tag. 
      * @param {Tag} tag - The tag object
