@@ -5,7 +5,7 @@
       <UCard class="w-full">
         <template #header>
           <div class="flex items-center gap-5">
-            <UIcon name="i-lucide-layers" class="size-10" />
+            <img class="w-[50px]" src="/icons/quiz.png" alt="Quizzes">
             <h1> Meus quizzes </h1>
           </div>
         </template>
