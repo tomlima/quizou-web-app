@@ -37,7 +37,7 @@ export const useTagStore = defineStore("tag", {
      * @param {Tag} tag - The tag object
      * @returns { Void }
     */
-    openEditTagModal(tag: Tag) {
+    openEditTagModal(tag: Tag): void {
       this.tagBeingEdited = tag;
       this.showEditTagModal = true;
     },
@@ -48,7 +48,7 @@ export const useTagStore = defineStore("tag", {
      *
      * @returns { Void }
     */
-    openNewTagModal() {
+    openNewTagModal(): void {
       this.showNewTagModal = true;
     },
 
@@ -58,7 +58,7 @@ export const useTagStore = defineStore("tag", {
      * 
      * @returns { Void }
     */
-    closeEditTagModal() {
+    closeEditTagModal(): void {
       this.showEditTagModal = false;
     },
 
@@ -68,7 +68,7 @@ export const useTagStore = defineStore("tag", {
      *
      * @returns { Void }
     */
-    closeNewTagModal() {
+    closeNewTagModal(): void {
       this.showNewTagModal = false;
     },
 
@@ -79,7 +79,7 @@ export const useTagStore = defineStore("tag", {
      * @returns { Void }
     */
 
-    async fetchTags() {
+    async fetchTags(): Promise<void> {
       const config = useRuntimeConfig();
       this.loading = true;
       const toast = useToastMessage();
@@ -106,7 +106,7 @@ export const useTagStore = defineStore("tag", {
      * @returns { Void }
     */
 
-    async createTag(tagName: string) {
+    async createTag(tagName: string): Promise<any> {
       const config = useRuntimeConfig();
       const toast = useToastMessage();
       if (!tagName.trim()) {
@@ -154,7 +154,7 @@ export const useTagStore = defineStore("tag", {
      * @returns { Void }
     */
 
-    async deleteTag(tag: Tag) {
+    async deleteTag(tag: Tag): Promise<void> {
       const config = useRuntimeConfig();
       const toast = useToastMessage();
 
@@ -173,7 +173,6 @@ export const useTagStore = defineStore("tag", {
           } else {
             throw new Error(`Erro ao deletar: ${response.status} ${response.statusText}`);
           }
-          return;
         }
 
         //  If all worked 
