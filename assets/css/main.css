@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Rowdies:wght@300;400;700&display=swap');
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+body{
+  background-color:#fff; 
+  font-family:'Poppins', sans-serif;
+}
+
+button{
+  cursor:pointer;
+}
+
+img{
+  max-width: 100%;
+}
+
+input[type="search"] {
+  height: 60px;
+  border-radius: 0.65rem;
+  background-color: #fff;
+  color:hsl(229deg 11% 51%);
+  padding: 15px 30px;
+  display: block;
+  border: 2px solid rgba(128, 128, 128, 0.404);
+  outline: none;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+h1{
+  font-size: 2rem;
+  line-height: 2rem;
+}
+
+b{
+  text-decoration: underline;
+}
+
+.bg-inverted {
+  background-color: #ff7043 !important;
+}
+
+.card {
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 15px;
+  height: 430px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset;
+}
+.card__content {
+  padding: 30px;
+}
+
+.card__content h3 {
+  display: block;
+  height: 50px;
+  margin-bottom: 15px;
+}
+
+.card__thumb {
+  width: 100%;
+  height: 250px;
+}
+
+.card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px 15px 0px 0px;
+}
+
+@media screen and (min-width:1050px){
+  .card{
+    width: 380px;
+  }
+}
+
+$color1: #fff;
+$color2: #007BFF;
+
+.radio {
+  margin: 0.5rem;
+}
+
+.radio input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.radio input[type="radio"] + .radio-label:before {
+  content: '';
+  background: #fff;
+  border-radius: 100%;
+  border: 1px solid #999;
+  display: inline-block;
+  width: 1.4em;
+  height: 1.4em;
+  position: relative;
+  margin-right: 1em;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  transition: all 250ms ease;
+}
+
+.radio input[type="radio"]:checked + .radio-label:before {
+  background-color: #615fff;
+  box-shadow: inset 0 0 0 4px #ccc;
+}
+
+.radio input[type="radio"]:focus + .radio-label:before {
+  outline: none;
+  border-color:#615fff;
+}
+
+.radio input[type="radio"]:disabled + .radio-label:before {
+  box-shadow: inset 0 0 0 4px #ccc;
+  border-color: #999;
+  background: #999;
+}
+
+.radio input[type="radio"] + .radio-label:empty:before {
+  margin-right: 0;
+}
+
