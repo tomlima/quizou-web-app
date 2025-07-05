@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import type { PagedResult } from '@/types/entity/paged-result'
 import type { Tag } from '@/types/entity/tag'
+import type { QuizDTO } from "@/types/dto/quizDTO";
 
 export const useQuizAdminStore = defineStore("quiz-admin", {
   state: () => ({
@@ -12,6 +13,66 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
     loading: false as boolean
   }),
   actions: {
+    /**
+     * This method add a new Quiz 
+     *  
+     * @param {QuizDTO} quiz - Quiz dto object 
+     * @returns { Promise<string | null> }    
+     **/
+
+    async createQuiz(quiz: QuizDTO): Promise<string | null> {
+      const config = useRuntimeConfig();
+      const toast = useToastMessage();
+
+      console.info(quiz)
+
+      if (!quiz.title.trim() || !quiz.description.trim()) {
+        toast('error', 'Você precisa preencher o campo "Título" ');
+        return null;
+      }
+
+      try {
+        const response: Response = await fetch(`${config.public.apiBase}/quizzes`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(
+            {
+              title: quiz?.title.trim(),
+              description: quiz?.description.trim(),
+              time: quiz.time,
+              difficult: quiz.difficulty,
+              category: quiz.category,
+              tag: quiz.tag,
+              thumb: quiz.thumb,
+              status: quiz.status
+            }
+          ),
+        });
+
+        // If something wrong happen
+        if (!response.ok) {
+          if (response.status == 409) {
+            toast('warning', "Esse quiz já existe");
+          } else {
+            throw new Error(`Erro ao criar matéria: ${response.status} ${response.statusText}`);
+          }
+          return null;
+        }
+
+        const resultText = await response.text();
+        toast('success', "Quiz criado com sucesso!");
+        return resultText;
+
+      } catch (error) {
+        console.error(error);
+        toast('error', 'Erro ao salvar o quiz');
+        return null;
+      }
+
+    },
+
     /**
      * This method open the 
      * modal for edit a tag. 
