@@ -73,10 +73,35 @@ export const useTagStore = defineStore("tag", {
     },
 
     /**
-     * This method fetch all tags 
-     * from the API.  
-     * 
-     * @returns { Void }
+     * This method receive an array of  
+     * tag names. For each name the method searchs for 
+     * the directly related id and returns an array 
+     * with all these ids.
+     *
+     * E.g: receive ['tagName1','tagName2','tagName3']
+     *      returns [1,5,7] 
+     *  
+     * @param {string[]} tags - An array of tag names. 
+     * @returns { int[] }
+    */
+    buildSelectedTagIdList(tags: string[]): Number[] {
+      const tagsIds: Number[] = [];
+      if (tags.length > 0) {
+        tags.forEach(tagName => {
+          const tag: Tag | null = this.getTagByName(tagName);
+          if (tag != null) {
+            tagsIds.push(tag.id);
+          }
+        });
+      }
+      return tagsIds;
+    },
+
+    /**
+    * This method fetch all tags 
+    * from the API.  
+    * 
+    * @returns { Promise<Void> }
     */
 
     async fetchTags(): Promise<void> {
@@ -100,10 +125,10 @@ export const useTagStore = defineStore("tag", {
     },
 
     /**
-     * This method add a new tag 
-     *  
-     * @param {string} tagName - Name of the tag 
-     * @returns { Void }
+    * This method add a new tag 
+    *  
+    * @param {string} tagName - Name of the tag 
+    * @returns { Void }
     */
 
     async createTag(tagName: string): Promise<any> {
@@ -148,10 +173,10 @@ export const useTagStore = defineStore("tag", {
     },
 
     /**
-     * This method delete a tag  
-     * modal for edit a tag. 
-     * @param {Tag} tag - The tag object
-     * @returns { Void }
+    * This method delete a tag  
+    * modal for edit a tag. 
+    * @param {Tag} tag - The tag object
+    * @returns { Void }
     */
 
     async deleteTag(tag: Tag): Promise<void> {
@@ -187,13 +212,12 @@ export const useTagStore = defineStore("tag", {
         toast('error', 'Erro ao deletar  a tag');
       }
     },
-
     /**
-     * This method edit a tag  
-     * modal for edit a tag. 
-     * @param {number} tagId - The id of the tag thaw will be edited 
-     * @param {string} newTagName = The new name of the tag 
-     * @returns { Void }
+    * This method edit a tag  
+    * modal for edit a tag. 
+    * @param {number} tagId - The id of the tag thaw will be edited 
+    * @param {string} newTagName - The new name of the tag 
+    * @returns { Void }
     */
 
     async editTag(tagId: number, newTagName: string): Promise<void> {
@@ -224,3 +248,4 @@ export const useTagStore = defineStore("tag", {
     }
   }
 })
+

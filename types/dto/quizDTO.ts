@@ -1,14 +1,10 @@
-import type { Difficulty, QuizStatus } from "../unums/enum";
-import type { Category } from "../entity/category.ts";
-import type { Tag } from "../entity/tag";
-
 export interface QuizDTO {
   title: string;
-  difficulty: Difficulty;
+  difficulty: Number; // 0:easy | 1:medium | 2: hard
   description: string;
   time: number;
-  status: QuizStatus;
-  category: Category;
-  tag: Tag
-  thumb: string;
+  status: Number; // 0: draft | 1: active | 2: deleted | 3: archived
+  categoryId: Number;
+  tags: Number[]
+  image: string;
 }

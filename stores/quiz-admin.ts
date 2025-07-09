@@ -1,15 +1,9 @@
 import { defineStore } from "pinia";
-import type { PagedResult } from '@/types/entity/paged-result'
-import type { Tag } from '@/types/entity/tag'
 import type { QuizDTO } from "@/types/dto/quizDTO";
 
 export const useQuizAdminStore = defineStore("quiz-admin", {
   state: () => ({
     showNewQuizModal: false as boolean,
-    showNewTagModal: false as boolean,
-    showEditTagModal: false as boolean,
-    tags: null as PagedResult<Tag> | null,
-    tagBeingEdited: null as Tag | null,
     loading: false as boolean
   }),
   actions: {
@@ -20,14 +14,17 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
      * @returns { Promise<string | null> }    
      **/
 
-    async createQuiz(quiz: QuizDTO): Promise<string | null> {
+    async createQuiz(quiz: QuizDTO): Promise<number | null> {
       const config = useRuntimeConfig();
       const toast = useToastMessage();
 
-      console.info(quiz)
+      // Get only image name 
+      // E.g: From this string: https://provider.com/bucket/image.png 
+      // we'll gonna extract only the string image.png 
+      const image: string | undefined = quiz?.image?.split("/").pop();
 
       if (!quiz.title.trim() || !quiz.description.trim()) {
-        toast('error', 'Você precisa preencher o campo "Título" ');
+        toast('error', 'Preencha todos os campos! ');
         return null;
       }
 
@@ -41,12 +38,12 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
             {
               title: quiz?.title.trim(),
               description: quiz?.description.trim(),
-              time: quiz.time,
-              difficult: quiz.difficulty,
-              category: quiz.category,
-              tag: quiz.tag,
-              thumb: quiz.thumb,
-              status: quiz.status
+              time: quiz?.time,
+              difficulty: Number(quiz?.difficulty),
+              categoryId: quiz?.categoryId,
+              tags: quiz?.tags,
+              image: image,
+              status: Number(quiz?.status)
             }
           ),
         });
@@ -61,12 +58,11 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
           return null;
         }
 
-        const resultText = await response.text();
-        toast('success', "Quiz criado com sucesso!");
-        return resultText;
+        const result = await response.json();
+        toast('success', 'Quiz create successfully');
+        return result.id;
 
       } catch (error) {
-        console.error(error);
         toast('error', 'Erro ao salvar o quiz');
         return null;
       }
@@ -75,198 +71,12 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
 
     /**
      * This method open the 
-     * modal for edit a tag. 
-     * @param {Tag} tag - The tag object
-     * @returns { Void }
-    */
-    openEditTagModal(tag: Tag) {
-      this.tagBeingEdited = tag;
-      this.showEditTagModal = true;
-    },
-
-    /**
-     * This method open the 
-     * modal for create a new  tag. 
+     * modal for create a new quiz. 
      *
-     * @returns { Void }
+     * @returns { void }
     */
-    openNewQuizModal() {
+    openNewQuizModal(): void {
       this.showNewQuizModal = true;
-
-      // Create a draft quiz 
-
     },
-
-    /**
-     * This method close the 
-     * modal for edit a tag. 
-     * 
-     * @returns { Void }
-    */
-    closeEditTagModal() {
-      this.showEditTagModal = false;
-    },
-
-    /**
-     * This method close the 
-     * modal for create a new tag.  
-     *
-     * @returns { Void }
-    */
-    closeNewTagModal() {
-      this.showNewTagModal = false;
-    },
-
-    /**
-     * This method fetch all tags 
-     * from the API.  
-     * 
-     * @returns { Void }
-    */
-
-    async fetchTags() {
-      const config = useRuntimeConfig();
-      this.loading = true;
-      const toast = useToastMessage();
-      try {
-        const response: Response = await fetch(`${config.public.apiBase}/tags`);
-
-        if (!response.ok) {
-          throw new Error(`Erro ao carregar tags: ${response.status} ${response.statusText}`);
-        }
-
-        const result: PagedResult<Tag> = await response.json();
-        this.tags = result;
-      } catch (error) {
-        toast('error', 'Erro ao carregar as tags');
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    /**
-     * This method add a new tag 
-     *  
-     * @param {string} tagName - Name of the tag 
-     * @returns { Void }
-    */
-
-    async createTag(tagName: string) {
-      const config = useRuntimeConfig();
-      const toast = useToastMessage();
-      if (!tagName.trim()) {
-        toast('error', 'Você precisa preencher o campo "tag".');
-        return;
-      }
-
-      try {
-        const response: Response = await fetch(`${config.public.apiBase}/tags`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name: tagName.trim() }),
-        });
-
-        // If something wrong happen
-        if (!response.ok) {
-          if (response.status == 409) {
-            toast('warning', "Essa tag já existe");
-          } else {
-            throw new Error(`Erro ao criar matéria: ${response.status} ${response.statusText}`);
-          }
-          return;
-        }
-
-        // If all is worked 
-        const savedTag = await response.json();
-        toast('success', `Tag "${savedTag.name}" criada com sucesso!`);
-        this.showNewTagModal = false;
-        if (this.tags) {
-          this.tags.items.unshift(savedTag);
-        }
-
-      } catch (error) {
-        toast('error', 'Erro ao salvar a tag');
-      }
-
-    },
-
-    /**
-     * This method delete a tag  
-     * modal for edit a tag. 
-     * @param {Tag} tag - The tag object
-     * @returns { Void }
-    */
-
-    async deleteTag(tag: Tag) {
-      const config = useRuntimeConfig();
-      const toast = useToastMessage();
-
-      try {
-        const response: Response = await fetch(`${config.public.apiBase}/tags?tagId=${tag.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-
-        // If something wrong happen 
-        if (!response.ok) {
-          if (response.status === 404) {
-            toast('error', 'Tag não encontrada ou já deletada.');
-          } else {
-            throw new Error(`Erro ao deletar: ${response.status} ${response.statusText}`);
-          }
-          return;
-        }
-
-        //  If all worked 
-        const message = await response.text();
-        toast('success', message);
-
-        if (this.tags) {
-          this.tags.items = this.tags.items.filter(t => t.id !== tag.id)
-        }
-
-      } catch (error) {
-        toast('error', 'Erro ao deletar  a tag');
-      }
-    },
-
-    /**
-     * This method edit a tag  
-     * modal for edit a tag. 
-     * @param {number} tagId - The id of the tag thaw will be edited 
-     * @param {string} newTagName = The new name of the tag 
-     * @returns { Void }
-    */
-
-    async editTag(tagId: number, newTagName: string): Promise<void> {
-      const config = useRuntimeConfig();
-      const toast = useToastMessage();
-
-      try {
-        const response: Response = await fetch(`${config.public.apiBase}/tags`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ tagId: tagId, name: newTagName.trim() }),
-        });
-
-        // If something wrong happen 
-        if (!response.ok) {
-          throw new Error(`Erro ao editar: ${response.status} ${response.statusText}`);
-        }
-
-        // If all worked 
-        toast('success', 'Tag editada com sucesso')
-        this.showEditTagModal = false;
-
-      } catch (err) {
-        toast('error', 'Erro ao editar a tag');
-      }
-    }
   }
 })
