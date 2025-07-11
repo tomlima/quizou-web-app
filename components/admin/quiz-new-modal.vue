@@ -38,7 +38,7 @@
           <template #questions="{item}">
             <UCard class="w-full md:w-[600px]">
               {{quizId}}
-              <UInput size="md" class="w-full" placeholder="Your question.." />
+              <AdminQuestionBuilder :quizId="quizId" v-if="quizId" />
             </UCard>
           </template>
 
