@@ -39,7 +39,7 @@ export const useQuestionStore = defineStore("question", {
 
     /**
      * This method add a new question
-     *  
+     *
      * @param {CreateQuestionDto} questionDto - The question DTO object 
      * @returns { Void }
     */
@@ -47,11 +47,6 @@ export const useQuestionStore = defineStore("question", {
     async createQuestion(questionDto: CreateQuestionDto): Promise<number | null> {
       const config = useRuntimeConfig();
       const toast = useToastMessage();
-
-      if (!questionDto.Text.trim()) {
-        toast('error', 'Preencha todos os campos! ');
-        return null;
-      }
 
       try {
         const response: Response = await fetch(`${config.public.apiBase}/questions`, {
@@ -61,7 +56,7 @@ export const useQuestionStore = defineStore("question", {
           },
           body: JSON.stringify(
             {
-              Title: questionDto.Text?.trim(),
+              Text: questionDto.Text?.trim(),
               Difficulty: Number(questionDto?.Difficulty),
               Order: questionDto?.Order,
               QuizId: questionDto?.QuizId,
@@ -83,7 +78,6 @@ export const useQuestionStore = defineStore("question", {
         toast('error', 'Erro ao salvar a pergunta');
         return null;
       }
-    },
-
+    }
   }
-})
+});

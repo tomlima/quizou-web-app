@@ -1,52 +1,49 @@
 <template>
-  <div class="w-full flex justify-center">
-    <UButton  size="md" icon="i-lucide-plus" color="primary">Adicionar nova pergunta</UButton>
+  <div class="w-full inline-flex flex-col items-center justify-center gap-10">
     <div v-if="questionStore.questions.length > 0">
-      <div v-for="(question,index) in questionStore.questions" :index=index>
-        {{question}}
+      <div v-for="(question,index) in questionStore.questions" :key="index">
+       {{question}}
       </div>
     </div>
+    <UButton @click="createNewQuestion()" size="md" icon="i-lucide-plus"  color="primary">Adicionar nova pergunta</UButton>
   </div>
 </template>
 
 
 <script setup lang="ts">
 import { useQuestionStore } from "@/stores/question"
-import { ref, watch } from "vue";
-import { QuestionDto } from "@/types/dto/questionDto"
+import type { CreateQuestionDto } from "@/types/dto/createQuestionDto"
+import {useTagStore} from "@/stores/tag"
 
 const questionStore = useQuestionStore();
+const tagStore = useTagStore();
 
-defineProps({
-  quizId: Number,
-  tags: Number[]
-})
+var questionOrder = 0;
+
+const props = defineProps<{
+  quizId: number;
+  tags: array;
+  difficulty: number;
+}>();
 
 /* Fetch  all questions */
 onMounted(async () => {
-  await questionStore.fetchQuestions(); 
-}); 
+  await questionStore.fetchQuestionsByQuiz(props.quizId); 
+});
 
 async function createNewQuestion(){
-  const questionObj:QuestionDto = {
-    title: quizTitle.value, 
-    difficulty : quizDifficult.value,
-    description: quizDescription.value, 
-    time: quizTime.value, 
-    status: 0, // Draft
-    categoryId: categoryObject?.id,
-    tags: tagsIds,  
-    image: thumb.value 
+  // A list with all tags ids selected by the user. 
+  const tagsIds:Number[] = tagStore.buildSelectedTagIdList(props.tags);
+
+  const questionObj:CreateQuestionDto = {
+    Text: "New question",
+    Difficulty : props.difficulty,
+    Order: questionOrder,
+    QuizId: props.quizId,
+    Tags: tagsIds
   };
-
-  const idOfCreatedQuiz:string | null =  await quizStore.createQuiz(quizObj);
-
-  if(idOfCreatedQuiz !== null){
-    quizId.value = idOfCreatedQuiz; 
-    quizSaved.value = true; 
-    stepper?.value.next();
-  }
-
+  await questionStore.createQuestion(questionObj);
+  await questionStore.fetchQuestionsByQuiz(props.quizId); 
 }
 
 </script>
