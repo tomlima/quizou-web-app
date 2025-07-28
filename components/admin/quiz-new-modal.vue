@@ -2,6 +2,7 @@
   <UModal
     fullscreen
     title="Criar novo quiz"
+    description="New quiz"
     :dismissible="false"
     v-model:open="quizStore.showNewQuizModal"
     :ui="{ footer: 'justify-end' }"
@@ -21,7 +22,7 @@
                   <UInput class="w-full" type="number" size="md" icon="i-lucide-clock-9" variant="outline" v-model="quizTime" />
                 </UFormField>
                 <UFormField required label="Dificuldade" class="mt-5">
-                  <URadioGroup v-model="quizDifficult" size="md" orientation="horizontal" variant="list" default-value="1" :items="difficulties" />
+                  <URadioGroup v-model="quizDifficulty" size="md" orientation="horizontal" variant="list" default-value="1" :items="difficulties" />
                 </UFormField>
                 <UFormField label="Categoria" class="mt-5">
                   <USelectMenu selected-icon="i-lucide-pin" color="primary" size="md" v-model="category" :loading=categoryStore?.loading :items="categories" class="w-48" />
@@ -37,7 +38,7 @@
 
           <template #questions="{item}">
             <UCard class="w-full md:w-[600px]">
-              <AdminQuestionBuilder :quizId="quizId" :tags="selectedTags" :difficulty="quizDifficult" v-if="quizId" />
+              <AdminQuestionBuilder :quizId="quizId" :tags="selectedTags" :difficulty="quizDifficulty" v-if="quizId" />
             </UCard>
           </template>
 
@@ -105,7 +106,7 @@ const quizId = ref(null);
 const quizTitle = ref(''); 
 const quizDescription = ref(''); 
 const quizTime = ref(5); 
-const quizDifficult = ref(2); 
+const quizDifficulty = ref<number>(2); 
 const category = ref("Filmes"); 
 const selectedTags = ref(["Harry Potter"]); 
 const thumb = ref("thumb_placeholder.png");
@@ -139,7 +140,7 @@ async function saveQuizDraft(){
   // The final quizObj 
   const quizObj:QuizDTO = {
     title: quizTitle.value, 
-    difficulty : quizDifficult.value,
+    difficulty : quizDifficulty.value,
     description: quizDescription.value, 
     time: quizTime.value, 
     status: 0, // Draft

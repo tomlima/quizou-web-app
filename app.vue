@@ -1,6 +1,6 @@
 <template>
   <div>
-    <UApp>
+    <UApp :toaster="{ position: 'bottom-center', expand: true, duration: 5000 }">
       <Header />
       <NuxtLayout />      
       <NuxtPage />         
