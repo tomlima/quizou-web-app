@@ -59,7 +59,6 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
         }
 
         const result = await response.json();
-        toast('success', 'Quiz create successfully');
         return result.id;
 
       } catch (error) {

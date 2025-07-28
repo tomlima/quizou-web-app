@@ -72,7 +72,6 @@ export const useQuestionStore = defineStore("question", {
         }
 
         const result = await response.json();
-        toast('success', 'Question create successfully');
         return result.id;
 
       } catch (error) {
