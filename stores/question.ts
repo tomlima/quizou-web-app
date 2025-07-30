@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Question } from '@/types/entity/question'
 import type { CreateQuestionDto } from "@/types/dto/createQuestionDto";
-import type { ReorderQuestionDto } from "@/types/dto/reorder-question-dto";
+import type { ReorderDto } from "@/types/dto/reorder-dto";
 
 export const useQuestionStore = defineStore("question", {
   state: () => ({
@@ -105,10 +105,10 @@ export const useQuestionStore = defineStore("question", {
     /**
      * This method reorder a list of questions.
      *
-     * @param {ReorderQuestionDto[]} payload - A list of reorder object.
+     * @param {ReorderDto[]} payload - A list of reorder object.
      * @returns { Promise<void> }
     */
-    async reorder(payload: ReorderQuestionDto[]): Promise<void> {
+    async reorder(payload: ReorderDto[]): Promise<void> {
       const config = useRuntimeConfig();
       const toast = useToastMessage();
 

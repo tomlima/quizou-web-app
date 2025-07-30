@@ -2,17 +2,17 @@
   <div class="w-full inline-flex flex-col items-center justify-center gap-10">    
     <draggable  @end="reorder" class="w-full flex flex-col gap-8" v-if="questionStore.questions.length > 0" v-model="questionStore.questions" item-key="id">
       <template #item="{element}">
-        <UCollapsible class="flex flex-col gap-2 w-full cursor-move">
+        <UCollapsible  class="flex flex-col gap-2 w-full cursor-move">
           <div class="flex gap-5">
-            <UButton
+            <UBadge
               :label="element.text"
               color="neutral"
-              variant="subtle"
-              trailing-icon="i-lucide-chevron-down"
+              variant="outline"
               block
-              class="cursor-move w-[250px] md:w-[500px]"
+              size="lg"
+              class="cursor-move w-[250px] md:w-[800px]"
             />
-            
+
             <div class="flex gap-2">
               <UButton
                 @click.stop="deleteQuestion(element.id)"
@@ -26,12 +26,11 @@
                 color="primary"
                 variant="subtle"
               />
-              <UButton @click.prevent.stop variant="subtle" color="neutral" icon="i-lucide-move"  /> 
             </div>
           </div>
           <template #content>
             <div class="p-10">
-
+              <AdminAnswerBuilder :questionId="element.id" v-if="element.id" />
             </div>
           </template>
         </UCollapsible>

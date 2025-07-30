@@ -37,7 +37,7 @@
           </template>
 
           <template #questions="{item}">
-            <UCard class="w-full md:w-[600px]">
+            <UCard class="w-full">
               <AdminQuestionBuilder :quizId="quizId" :tags="selectedTags" :difficulty="quizDifficulty" v-if="quizId" />
             </UCard>
           </template>
