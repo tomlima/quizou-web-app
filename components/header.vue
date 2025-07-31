@@ -85,6 +85,11 @@ const items = computed<NavigationMenuItem[][]>(() => {
           to: "/categoria/series",
         },
         { label: "Jogos", icon: "i-lucide-gamepad-2", to: "/categoria/jogos" },
+        {
+          label: "Novelas",
+          icon: "i-lucide-tv",
+          to: "/categoria/novelas"
+        }
       ],
     }
   ];
