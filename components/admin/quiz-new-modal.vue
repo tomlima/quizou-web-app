@@ -2,7 +2,7 @@
   <UModal
     fullscreen
     title="Criar novo quiz"
-    description="New quiz"
+    description=""
     :dismissible="false"
     v-model:open="quizStore.showNewQuizModal"
     :ui="{ footer: 'justify-end' }"
@@ -53,14 +53,14 @@
           :disabled="!stepper?.hasPrev"
           @click="stepper?.prev()"
         >
-          Prev
+          Anterior 
         </UButton>
         <UButton
           trailing-icon="i-lucide-arrow-right"
           :disabled="!stepper?.hasNext"
-          @click="saveQuizDraft()"
+          @click="!editMode ? saveQuizDraft() : editQuiz()"
         >
-          Next
+          Próximo
         </UButton>
       </div>
     </template>
@@ -68,8 +68,8 @@
 </template>
 
 <script setup lang="ts">
-import type { StepperItem } from '@nuxt/ui'
-import type { RadioGroupItem } from '@nuxt/ui'
+import {QuizStatus, Difficulty} from "@/types/unums/enum"
+import type { RadioGroupItem, StepperItem } from '@nuxt/ui'
 import type { Category } from "@/types/entity/category"
 import type { Tag } from "@/types/entity/tag"
 import type { QuizDTO } from "@/types/dto/quizDTO"
@@ -82,43 +82,49 @@ const categoryStore = useCategoryStore();
 const tagStore = useTagStore(); 
 const stepper = useTemplateRef('stepper');
 
+
 /* Fetch categories and tags */
 onMounted(async () => {
   await categoryStore.fetchCategories(); 
   await tagStore.fetchTags(); 
 }); 
 
-/* Quiz Seteps */
+/* The Quiz is composed by two steps:
+ *
+ * 1- Basic informations (Title, Description, Duration, etc.. )
+ * 2- Questions and answers.
+ **/
 const steps: StepperItem[] = [
   {
     title: 'Quiz',
     icon: 'i-lucide-house',
     slot: 'quiz' as const  
   }, {
-    title: 'Questions',
+    title: 'Perguntas',
     icon: 'i-lucide-circle-question-mark',
     slot: 'questions' as const 
-  }
+  },
 ]
 
 /* Quiz fields */
-const quizId = ref(null);  
-const quizTitle = ref(''); 
-const quizDescription = ref(''); 
-const quizTime = ref(5); 
-const quizDifficulty = ref<number>(2); 
-const category = ref("Filmes"); 
-const selectedTags = ref(["Harry Potter"]); 
-const thumb = ref("thumb_placeholder.png");
-const quizSaved = ref(false); 
+const quizId = ref<null | number>(null);
+const quizTitle = ref<string>('Crawling in my skin');
+const quizDescription = ref<string>('These wounds, they will not heal');
+const quizTime = ref<number>(5);
+const quizDifficulty = ref<Difficulty>(Difficulty.Hard);
+const category = ref<string>("Filmes"); 
+const selectedTags = ref<string[]>(["Harry Potter"]); 
+const thumb = ref<string>("thumb_placeholder.png");
+const quizStatus = ref<QuizStatus>(QuizStatus.Draft)
+const editMode = ref<boolean>(false);
 
-/* List of: 
+/* Populate quiz selection fields:
  *
- * difficulties: 0 = easy | 1 = moderate | 2 = hard 
+ * difficulties list
  * all categories names from db: ['filmes','series'...n]  
  * all tags names from db: ['harry potter', 'mario'...n]
  * */
-const difficulties = ref<RadioGroupItem[]>([0, 1, 2]);
+const difficulties = ref<RadioGroupItem[]>([Difficulty.Easy, Difficulty.Moderate, Difficulty.Hard]);
 
 const categories = computed(() =>
   categoryStore.categories.map(category => category.name)
@@ -128,8 +134,61 @@ const tags = computed(() =>
   tagStore.tags?.items.map(tag => tag.name)
 )
 
+
+/* This method handle the quiz editing:
+ * Load the payload based on reactive values.
+ * Send payload to the quiz store.
+ * Send user to next step.
+ *
+ * @returns {void}
+ * */
+async function editQuiz(){
+  const payload: QuizDTO = buildPayload();
+  quizStore.edit(payload);
+  stepper?.value.next();
+}
+
+/* This method build a payload object 
+ * to create and edit a quiz.
+ *
+ * 1- Load the payload based on reactive values.
+ * 2- Send payload to the quiz store.
+ * 3- Send user to next step (questions).
+ *
+ * @returns {void}
+ * */
+
+function buildPayload():QuizDTO {
+  // The category selected object.
+  const categoryObject: Category = categoryStore.getCategoryByName(category.value);
+
+  // A list with all tags ids selected by the user.
+  const tagsIds:Number[] = tagStore.buildSelectedTagIdList(selectedTags.value); 
+  
+  // Quiz object
+  const payload:QuizDTO = {
+    Title: quizTitle.value, 
+    Difficulty : quizDifficulty.value,
+    Description: quizDescription.value, 
+    Time: quizTime.value, 
+    Status: quizStatus.value,
+    CategoryId: categoryObject?.id,
+    Tags: tagsIds,
+    Image: thumb.value 
+  };
+
+  // If the user is editing, we need to pass 
+  // the quiz id as property of payload.
+  if(editMode.value){
+    payload.Id = quizId.value;
+  }
+
+  return payload;
+} 
+
 /* Save the quiz as draft */
 async function saveQuizDraft(){
+
 
   // The category selected object. 
   const categoryObject: Category = categoryStore.getCategoryByName(category.value);
@@ -138,22 +197,13 @@ async function saveQuizDraft(){
   const tagsIds:Number[] = tagStore.buildSelectedTagIdList(selectedTags.value); 
   
   // The final quizObj 
-  const quizObj:QuizDTO = {
-    title: quizTitle.value, 
-    difficulty : quizDifficulty.value,
-    description: quizDescription.value, 
-    time: quizTime.value, 
-    status: 0, // Draft
-    categoryId: categoryObject?.id,
-    tags: tagsIds,  
-    image: thumb.value 
-  };
-
-  const idOfCreatedQuiz:string | null =  await quizStore.createQuiz(quizObj);
+  const payload:QuizDTO = buildPayload(); 
+  console.info(payload);
+  const idOfCreatedQuiz:string | null =  await quizStore.createQuiz(payload);
 
   if(idOfCreatedQuiz !== null){
     quizId.value = idOfCreatedQuiz; 
-    quizSaved.value = true; 
+    editMode.value = true; 
     stepper?.value.next();
   }
 }

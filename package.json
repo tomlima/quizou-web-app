@@ -22,6 +22,8 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@volar/vue-language-server": "^1.6.5",
+    "@vue/typescript-plugin": "^3.0.4",
     "sass": "^1.89.0"
   }
 }
