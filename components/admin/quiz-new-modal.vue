@@ -42,6 +42,12 @@
             </UCard>
           </template>
 
+          <template #publish={item}>
+            <UCard class="w-full">
+            
+            </UCard>
+          </template>
+
         </UStepper> 
       </div>
     </template>
@@ -69,7 +75,7 @@
 
 <script setup lang="ts">
 import {QuizStatus, Difficulty} from "@/types/unums/enum"
-import type { RadioGroupItem, StepperItem } from '@nuxt/ui'
+import type { RadioGroupItem, RadioGroupValue, StepperItem } from '@nuxt/ui'
 import type { Category } from "@/types/entity/category"
 import type { Tag } from "@/types/entity/tag"
 import type { QuizDTO } from "@/types/dto/quizDTO"
@@ -89,10 +95,11 @@ onMounted(async () => {
   await tagStore.fetchTags(); 
 }); 
 
-/* The Quiz is composed by two steps:
+/* The Quiz is composed by three steps:
  *
  * 1- Basic informations (Title, Description, Duration, etc.. )
  * 2- Questions and answers.
+ * 3- Publish stuffs
  **/
 const steps: StepperItem[] = [
   {
@@ -104,6 +111,11 @@ const steps: StepperItem[] = [
     icon: 'i-lucide-circle-question-mark',
     slot: 'questions' as const 
   },
+  {
+    title: 'Publicar',
+    icon: 'i-lucide-package-check',
+    slot: 'publish' as const
+  }
 ]
 
 /* Quiz fields */
@@ -111,7 +123,7 @@ const quizId = ref<null | number>(null);
 const quizTitle = ref<string>('Crawling in my skin');
 const quizDescription = ref<string>('These wounds, they will not heal');
 const quizTime = ref<number>(5);
-const quizDifficulty = ref<Difficulty>(Difficulty.Hard);
+const quizDifficulty = ref<RadioGroupValue>(Difficulty.Easy);
 const category = ref<string>("Filmes"); 
 const selectedTags = ref<string[]>(["Harry Potter"]); 
 const thumb = ref<string>("thumb_placeholder.png");
@@ -124,7 +136,11 @@ const editMode = ref<boolean>(false);
  * all categories names from db: ['filmes','series'...n]  
  * all tags names from db: ['harry potter', 'mario'...n]
  * */
-const difficulties = ref<RadioGroupItem[]>([Difficulty.Easy, Difficulty.Moderate, Difficulty.Hard]);
+const difficulties = ref<RadioGroupItem[]>([
+  { label: 'Fácil', value: Difficulty.Easy },
+  { label: 'Moderado', value: Difficulty.Moderate },
+  { label: 'Difícil', value: Difficulty.Hard },
+])
 
 const categories = computed(() =>
   categoryStore.categories.map(category => category.name)
