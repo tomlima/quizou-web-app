@@ -73,6 +73,7 @@ import { useRoute } from "vue-router";
 import { decrypt } from "@/common/decrypt";
 import { useQuizStore } from "../../stores/quiz";
 const store = useQuizStore();
+const config = useRuntimeConfig();
 
 const route = useRoute();
 const quizId = route.params.id as string;
@@ -84,7 +85,7 @@ function handleStart() {
 }
 
 const { data: encryptedData, pending: loadingQuiz } =
-  await useFetch<string>(`http://localhost:5035/api/v1/quizzes/${quizId}`, {
+await useFetch<string>(`${config.public.apiBase}/quizzes/${quizId}`, {
     server: false,
     key: `quiz-${route.fullPath}`
   });

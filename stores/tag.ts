@@ -103,7 +103,6 @@ export const useTagStore = defineStore("tag", {
     * 
     * @returns { Promise<Void> }
     */
-
     async fetchTags(): Promise<void> {
       const config = useRuntimeConfig();
       this.loading = true;

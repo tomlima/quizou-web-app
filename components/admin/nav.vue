@@ -16,7 +16,7 @@
       </template>
     </UNavigationMenu>
     <AdminTagNewModal />
-    <AdminQuizNewModal />
+    <AdminQuizModal />
   </div>
 </template>
 
@@ -26,7 +26,6 @@ import { useTagStore } from "@/stores/tag";
 import {useQuizAdminStore } from "@/stores/quiz-admin"; 
 const tagStore = useTagStore();
 const quizStore = useQuizAdminStore(); 
-
 
 const handleClick = (item) => {
   console.info(item); 

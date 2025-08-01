@@ -6,7 +6,7 @@
     >
       <div class="card__thumb">
         <img
-          :src="'/quiz/' + quiz.image"
+          :src="`${config.public.imageBase}${quiz?.image}`"
           width="234"
           height="234"
           class="rounded-lg"
@@ -57,6 +57,7 @@ import type { Quiz } from "../types/entity/quiz";
 import { useAuthStore } from "~/stores/auth";
 const auth = useAuthStore();
 const isAuthenticated = computed(() => auth.isAuthenticated);
+const config = useRuntimeConfig();
 
 defineProps<{
   quizzes: Quiz[];

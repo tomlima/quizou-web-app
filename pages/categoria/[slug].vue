@@ -12,7 +12,7 @@
       </div>
 
       <CategorySlider
-        v-if="!loadingFeaturedQuizzes && featuredQuizzes"
+        v-if="featuredQuizzes"
         :featured-quizzes="featuredQuizzes"
       />
     </div>
@@ -32,22 +32,25 @@ import { ref } from "vue";
 import { useRoute } from "vue-router";
 import type { BreadcrumbItem } from "@nuxt/ui";
 const route = useRoute();
-const slug = route.params.slug as string;
 const page = ref(5);
+const config = useRuntimeConfig();
+const slug = computed(() => route.params.slug as string)
 
-const { data: featuredQuizzes, pending: loadingFeaturedQuizzes } =
-  await useFetch<Quiz[]>("http://localhost:5035/api/v1/quiz/featured", {
-    server: true,
-    key: `featured-quizzes-${route.fullPath}`, // garante nova chamada
-  });
+const { data: featuredQuizzes, pending: loadingFeaturedQuizzes } = await useFetch<Quiz[]>(
+  `${config.public.apiBase}/quizzes/featured`,
+  { key: 'featured-quizzes', server: true }
+)
 
-const { data: quizzes } = await useFetch<Quiz[]>(
-  `http://localhost:5035/api/v1/quiz/category/${slug}`,
-  {
-    server: true,
-    key: `quizzes-${route.fullPath}`, // garante nova chamada
-  }
-);
+
+const keySlug = computed(() => slug.value ? `quizzes-${slug.value}` : null)
+const { data: quizzes, pending: loadingQuizzes, error: errorQuizzes } = useFetch<Quiz[]>(
+  () => slug.value ? `${config.public.apiBase}/quizzes/category/${slug.value}` : null,
+  { key: keySlug, server: false, default: () => [] }
+)
+
+if (errorQuizzes.value) {
+  console.error('Erro ao buscar quizzes:', errorQuizzes.value)
+}
 
 const breadCrumbItems = ref<BreadcrumbItem[]>([
   {

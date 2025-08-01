@@ -59,8 +59,10 @@ function getCorrectAnswerFromAGivenQuestion(question:Question){
 function getTheNumberOfCorrectAnswers(){
   const { quiz, questionsResponses } = resultStore.result; 
   let correctCount = 0;
+  
 
   for (const response of questionsResponses) {
+    console.info(response);
     const question = quiz.questions.find(q => q.id === response.question);
     if (!question) continue;
 
@@ -76,9 +78,6 @@ function getTheNumberOfCorrectAnswers(){
 function getThePercentOfSuccess(){
   const totalQuestion = parseInt(resultStore?.result?.quiz?.questions?.length); 
   const totalOfCorrectAnswers = parseInt(getTheNumberOfCorrectAnswers()); 
-    
-  console.log(totalQuestion)
-  console.log(totalOfCorrectAnswers)
   const percent = (100 * totalOfCorrectAnswers) / totalQuestion;
   return percent;
 }

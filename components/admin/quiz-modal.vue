@@ -4,14 +4,14 @@
     title="Criar novo quiz"
     description=""
     :dismissible="false"
-    v-model:open="quizStore.showNewQuizModal"
+    v-model:open="quizStore.showQuizModal"
     :ui="{ footer: 'justify-end' }"
   >
     <template #body>     
       <div class="w-[100%] flex justify-center">
         <UStepper ref="stepper" :items="steps">
           <template #quiz="{ item }">
-              <UCard class="w-full md:w-[600px]">
+              <UCard class="w-full md:w-[700px]">
                 <UFormField color="primary" label="Título" required>
                   <UInput size="md" class="w-full" v-model="quizTitle" placeholder="Tudo sobre o mundo de Harry Potter"/>
                 </UFormField>
@@ -37,15 +37,29 @@
           </template>
 
           <template #questions="{item}">
-            <UCard class="w-full">
+            <UCard class="w-full md:w-[700px]">
               <AdminQuestionBuilder :quizId="quizId" :tags="selectedTags" :difficulty="quizDifficulty" v-if="quizId" />
             </UCard>
           </template>
 
-          <template #publish={item}>
-            <UCard class="w-full">
-            
-            </UCard>
+          <template #publish={item}> 
+            <div class="w-full md:w-[700px]">
+              <UAlert variant="subtle" class="p-15 mt-15" color="primary">
+                <template #description>
+                  <h2 class="primary">Ufa! voce finalmente chegou na última etapa!</h2>
+                  <p>Agora é hora de conferir o resumo do Quiz e publica-lo. Após a publicação, o mesmo já estará disponível para todos os usuários.</p>
+                  
+                  <div class="mt-10">
+                    <h2>Resumo</h2>
+                    <ul>
+                      <li>Título: <strong> {{quizTitle}} </strong></li>
+                      <li>Duração: <strong>{{quizTime}} minutos</strong></li>
+                    </ul>
+                    <UButton @click="publish()" icon="i-lucide-rocket" class="mt-10" size="xl" color="primary">Publicar</UButton>
+                  </div>
+                </template>
+              </UAlert>
+            </div>
           </template>
 
         </UStepper> 
@@ -202,19 +216,18 @@ function buildPayload():QuizDTO {
   return payload;
 } 
 
-/* Save the quiz as draft */
-async function saveQuizDraft(){
+/* This method handles the creation of a quiz as draft. 
+ *
+ * 1- Get the payload object.
+ * 2- Send the paylod to store.
+ * 3- Check if we get a quiz id from creation 
+ *    and move on with flow.
+ *
+ * @returns {void}
+ * */
 
-
-  // The category selected object. 
-  const categoryObject: Category = categoryStore.getCategoryByName(category.value);
-
-  // A list with all tags ids selected by the user. 
-  const tagsIds:Number[] = tagStore.buildSelectedTagIdList(selectedTags.value); 
-  
-  // The final quizObj 
+async function saveQuizDraft(){ 
   const payload:QuizDTO = buildPayload(); 
-  console.info(payload);
   const idOfCreatedQuiz:string | null =  await quizStore.createQuiz(payload);
 
   if(idOfCreatedQuiz !== null){
@@ -223,5 +236,21 @@ async function saveQuizDraft(){
     stepper?.value.next();
   }
 }
+
+/* This method publish a quiz.
+ *
+ * 1- Set status as Active.
+ * 2- Get the payload object.
+ * 3- Send objeto to store.
+ *
+ * @returns {void}
+ * */
+
+async function publish(){ 
+  quizStatus.value = QuizStatus.Active;
+  const payload:QuizDTO = buildPayload();
+  await quizStore.edit(payload);
+}
+
 </script>
 
