@@ -89,6 +89,11 @@ const items = computed<NavigationMenuItem[][]>(() => {
           label: "Novelas",
           icon: "i-lucide-tv",
           to: "/categoria/novelas"
+        },
+        {
+          label: "Músicas",
+          icon: "i-lucide-music",
+          to: "/categoria/musicas"
         }
       ],
     }
