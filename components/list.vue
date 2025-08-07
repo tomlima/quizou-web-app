@@ -6,7 +6,7 @@
     >
       <div class="card__thumb">
         <img
-          :src="`${config.public.imageBase}${quiz?.image}`"
+          :src="`${config.public.imageBase}/${quiz?.image}`"
           width="234"
           height="234"
           class="rounded-lg"

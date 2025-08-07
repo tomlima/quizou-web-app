@@ -9,6 +9,7 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
     showQuizModal: false as boolean,
     loading: false as boolean,
     quizzes: null as PagedResult<Quiz> | null,
+    quizBeingEdited: null as Quiz | null
   }),
   actions: {
     /**
@@ -120,7 +121,8 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
               CategoryId: quiz?.CategoryId,
               Tags: quiz?.Tags,
               Image: image,
-              Status: Number(quiz?.Status)
+              Status: Number(quiz?.Status),
+              PublishedAt: quiz?.PublishedAt
             }
           ),
         });
@@ -167,7 +169,20 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
      * @returns { void }
     */
     openNewQuizModal(): void {
+      this.quizBeingEdited = null;
       this.showQuizModal = true;
     },
+
+    /**
+     * This method open the 
+     * modal for create a new quiz. 
+     *
+     * @returns { void }
+    */
+    closeNewQuizModal(): void {
+      this.quizBeingEdited = null;
+      this.showQuizModal = false;
+    },
+
   }
 })

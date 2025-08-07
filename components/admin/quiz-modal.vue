@@ -1,13 +1,13 @@
 <template>
   <UModal
     fullscreen
-    title="Criar novo quiz"
-    description=""
+    title="Quiz"
+    :description="`Modo de ${modeMessage}`"
     :dismissible="false"
     v-model:open="quizStore.showQuizModal"
     :ui="{ footer: 'justify-end' }"
   >
-    <template #body>     
+    <template #body>
       <div class="w-[100%] flex justify-center">
         <UStepper ref="stepper" :items="steps">
           <template #quiz="{ item }">
@@ -31,7 +31,7 @@
                   <USelectMenu selected-icon="i-lucide-pin" v-model="selectedTags" multiple size="md" :loading=tagStore?.loading :items="tags" class="w-48" />
                 </UFormField>
                 <UFormField label="Imagem" class="mt-5">
-                  <Upload v-model:returnedFileName="thumb" />
+                <Upload :imagePreview="thumb" v-model:returnedFileName="thumb" />
                 </UFormField>
               </UCard>
           </template>
@@ -42,21 +42,27 @@
             </UCard>
           </template>
 
-          <template #publish={item}> 
+          <template #publish={item} v-if="wasPublished"> 
             <div class="w-full md:w-[700px]">
-              <UAlert variant="subtle" class="p-15 mt-15" color="primary">
+              <UAlert variant="subtle" class="p-15 mt-15" color="neutral">
                 <template #description>
                   <h2 class="primary">Ufa! voce finalmente chegou na última etapa!</h2>
-                  <p>Agora é hora de conferir o resumo do Quiz e publica-lo. Após a publicação, o mesmo já estará disponível para todos os usuários.</p>
+                  <p>Agora basta publicar seu quiz. Lembrando que após a publicação, o mesmo já estará disponível para todos os usuários.</p>
                   
                   <div class="mt-10">
-                    <h2>Resumo</h2>
-                    <ul>
-                      <li>Título: <strong> {{quizTitle}} </strong></li>
-                      <li>Duração: <strong>{{quizTime}} minutos</strong></li>
-                    </ul>
                     <UButton @click="publish()" icon="i-lucide-rocket" class="mt-10" size="xl" color="primary">Publicar</UButton>
                   </div>
+                </template>
+              </UAlert>
+            </div>
+          </template>
+
+          <template #publish={item} v-else>
+            <div class="w-full md:w-[700px]">
+              <UAlert variant="subtle" class="p-15 mt-15" color="neutral">
+                <template #description>
+                  <h2 class="primary">O Quiz foi editado com sucesso!</h2>
+                  <p>A jenela já pode ser fechada.</p>
                 </template>
               </UAlert>
             </div>
@@ -78,7 +84,7 @@
         <UButton
           trailing-icon="i-lucide-arrow-right"
           :disabled="!stepper?.hasNext"
-          @click="!editMode ? saveQuizDraft() : editQuiz()"
+          @click="!wasCreated ? saveQuizDraft() : editQuiz()"
         >
           Próximo
         </UButton>
@@ -101,15 +107,93 @@ const quizStore = useQuizAdminStore();
 const categoryStore = useCategoryStore();
 const tagStore = useTagStore(); 
 const stepper = useTemplateRef('stepper');
+const config = useRuntimeConfig();
+const toast = useToastMessage();
 
+// Quiz fields declaration
+let quizId = ref<null | number>(null);
+let quizTitle = ref<string>('Crawling in my skin');
+let quizDescription = ref<string>('These wounds, they will not heal');
+let quizTime = ref<number>(5);
+let quizDifficulty = ref<RadioGroupValue>(Difficulty.Easy);
+let category = ref<string>("Filmes"); 
+let selectedTags = ref<string[]>([]); 
+let thumb = ref<string>(`${config.public.imageBase}/thumb_placeholder.png`);
+let quizStatus = ref<QuizStatus>(QuizStatus.Draft);
+let publishedAt = ref<null | Date>(null);
+
+let wasCreated = ref<boolean>(false);
+let wasPublished = ref<boolean>(false);
+
+watch(() => quizStore.quizBeingEdited,(quiz)=>{
+  /* If the value of quizBeingEdited is null
+   * it means that we are creating a new one.
+   * */
+  
+  if(quiz == null){
+    setDefaultValues();
+    return;
+  }
+
+  if(quiz.publishedAt == null){
+    wasPublished.value = false;
+  }else{
+    wasPublished.value = true;
+  }
+
+  //extract tags
+  let tags = [];
+  if(quiz?.tags && quiz?.tags.length > 0){
+    tags = quiz.tags.map(t => t.name);
+  }
+
+  wasCreated.value = true;
+  quizId.value = quiz.id;
+  quizTitle.value = quiz.title;
+  quizDescription.value = quiz.description;
+  quizDifficulty.value = quiz.difficulty; 
+  quizTime.value = quiz.time;
+  publishedAt.value = quiz.publishedAt;
+  thumb.value = `${config.public.imageBase}/${quiz.image}`;
+  category.value = quiz.category.name;
+  selectedTags.value = tags;
+});
 
 /* Fetch categories and tags */
 onMounted(async () => {
   await categoryStore.fetchCategories(); 
-  await tagStore.fetchTags(); 
+  await tagStore.fetchTags();
 }); 
 
-/* The Quiz is composed by three steps:
+/* Populate quiz selection fields:
+ *
+ * difficulties list
+ * all categories names from db: ['filmes','series'...n]  
+ * all tags names from db: ['harry potter', 'mario'...n]
+ * */
+const difficulties = ref<RadioGroupItem[]>([
+  { label: 'Fácil', value: Difficulty.Easy },
+  { label: 'Moderado', value: Difficulty.Moderate },
+  { label: 'Difícil', value: Difficulty.Hard },
+])
+
+const modeMessage = computed( ()=>{
+  return wasCreated.value ? 'edição' : 'criação';
+})
+
+const lastStepMessage = computed(()=>{
+  return wasPublished.value ? 'Editar' : 'Publicar'
+})
+
+const categories = computed(() =>
+  categoryStore.categories.map(category => category.name)
+);
+
+const tags = computed(() => 
+  tagStore.tags?.items.map(tag => tag.name)
+)
+
+/*The Quiz is composed by three steps:
  *
  * 1- Basic informations (Title, Description, Duration, etc.. )
  * 2- Questions and answers.
@@ -126,43 +210,31 @@ const steps: StepperItem[] = [
     slot: 'questions' as const 
   },
   {
-    title: 'Publicar',
+    title: lastStepMessage,
     icon: 'i-lucide-package-check',
     slot: 'publish' as const
   }
 ]
 
-/* Quiz fields */
-const quizId = ref<null | number>(null);
-const quizTitle = ref<string>('Crawling in my skin');
-const quizDescription = ref<string>('These wounds, they will not heal');
-const quizTime = ref<number>(5);
-const quizDifficulty = ref<RadioGroupValue>(Difficulty.Easy);
-const category = ref<string>("Filmes"); 
-const selectedTags = ref<string[]>(["Harry Potter"]); 
-const thumb = ref<string>("thumb_placeholder.png");
-const quizStatus = ref<QuizStatus>(QuizStatus.Draft)
-const editMode = ref<boolean>(false);
 
-/* Populate quiz selection fields:
+/* This method set default values for Quiz:
  *
- * difficulties list
- * all categories names from db: ['filmes','series'...n]  
- * all tags names from db: ['harry potter', 'mario'...n]
+ * @returns {void}
  * */
-const difficulties = ref<RadioGroupItem[]>([
-  { label: 'Fácil', value: Difficulty.Easy },
-  { label: 'Moderado', value: Difficulty.Moderate },
-  { label: 'Difícil', value: Difficulty.Hard },
-])
-
-const categories = computed(() =>
-  categoryStore.categories.map(category => category.name)
-);
-
-const tags = computed(() => 
-  tagStore.tags?.items.map(tag => tag.name)
-)
+function setDefaultValues(): void{
+  quizId.value = null;
+  quizTitle.value = "Crawling in my skin";
+  quizDescription.value = "These wounds, they will not heal";
+  quizTime.value = 5;
+  quizDifficulty.value = Difficulty.Easy;
+  category.value = "Filmes"; 
+  selectedTags.value = []; 
+  thumb.value = `${config.public.imageBase}/thumb_placeholder.png`;
+  quizStatus.value = QuizStatus.Draft;
+  publishedAt.value = null;
+  wasCreated.value = false;
+  wasPublished = false;
+}
 
 
 /* This method handle the quiz editing:
@@ -172,7 +244,7 @@ const tags = computed(() =>
  *
  * @returns {void}
  * */
-async function editQuiz(){
+async function editQuiz():void{
   const payload: QuizDTO = buildPayload();
   quizStore.edit(payload);
   stepper?.value.next();
@@ -189,6 +261,7 @@ async function editQuiz(){
  * */
 
 function buildPayload():QuizDTO {
+  console.info(publishedAt.value);
   // The category selected object.
   const categoryObject: Category = categoryStore.getCategoryByName(category.value);
 
@@ -204,12 +277,13 @@ function buildPayload():QuizDTO {
     Status: quizStatus.value,
     CategoryId: categoryObject?.id,
     Tags: tagsIds,
-    Image: thumb.value 
+    Image: thumb.value,
+    PublishedAt: publishedAt.value
   };
 
   // If the user is editing, we need to pass 
   // the quiz id as property of payload.
-  if(editMode.value){
+  if(wasCreated.value){
     payload.Id = quizId.value;
   }
 
@@ -226,13 +300,13 @@ function buildPayload():QuizDTO {
  * @returns {void}
  * */
 
-async function saveQuizDraft(){ 
+async function saveQuizDraft():void{ 
   const payload:QuizDTO = buildPayload(); 
   const idOfCreatedQuiz:string | null =  await quizStore.createQuiz(payload);
 
   if(idOfCreatedQuiz !== null){
     quizId.value = idOfCreatedQuiz; 
-    editMode.value = true; 
+    wasCreated.value = true; 
     stepper?.value.next();
   }
 }
@@ -246,10 +320,14 @@ async function saveQuizDraft(){
  * @returns {void}
  * */
 
-async function publish(){ 
+async function publish():void{ 
   quizStatus.value = QuizStatus.Active;
+  publishedAt.value = new Date();
   const payload:QuizDTO = buildPayload();
   await quizStore.edit(payload);
+  await quizStore.get();
+  quizStore.closeNewQuizModal();
+  toast("success", "Quiz publicado com sucesso!");
 }
 
 </script>

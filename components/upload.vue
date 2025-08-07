@@ -3,7 +3,7 @@
     <input @change="selectFile" id="file-upload" type="file" name="fileUpload" accept="image/*" />
     <label for="file-upload" class="flex items-center justify-center flex-col" id="file-drag">
       <div class="my-5 w-full h-[180px] md:w-[250px] md:h-[180px] rounded-xl">
-        <img v-if="returnedFileName" class="w-full h-full object-cover rounded-xl" :src="returnedFileName" alt="Preview">
+        <img v-if="returnedFileName" class="w-full h-full object-cover rounded-xl" :src="imagePreview" alt="Preview">
       </div>
       <div id="upload__wrapper">
         <UIcon name="i-lucide-upload" class="size-10" />
@@ -24,7 +24,10 @@
 </template>
 
 <script setup>
-const {
+const props = defineProps(['imagePreview'])
+const emit = defineEmits(['update:returnedFileName'])
+
+let {
   file,
   uploadProgress,
   isUploading,
@@ -34,10 +37,10 @@ const {
   returnedFileName
 } = useFileUpload()
 
-const emit = defineEmits(['update:returnedFileName'])
 
 watch(returnedFileName, (newVal) => {
   if (newVal) {
+    props.imagePreview = newVal;
     emit('update:returnedFileName', newVal)
   }
 })

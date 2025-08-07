@@ -6,6 +6,7 @@ export interface EditQuizDto {
   Time: number;
   Status: Number; // 0: draft | 1: active | 2: deleted | 3: archived
   CategoryId: Number;
-  Tags: Number[]
+  Tags: Number[];
+  PublishedAt: Date;
   Image: string;
 }

@@ -14,13 +14,13 @@
           <div class="flex gap-5">
             <div class="border border-gray-200 p-5 w-full md:w-[300px]" v-for="(quiz,index) in quizStore.quizzes.items">
               <div class="w-full h-[150px]" >
-                <img class="w-full h-full object-cover object-center" :src="`${config.public.imageBase}${quiz.image}`">
+                <img class="w-full h-full object-cover object-center" :src="`${config.public.imageBase}/${quiz.image}`">
               </div>
               <div class="my-3">
                 <h3 class="block">{{quiz.title}}</h3> 
               </div>
               <div class="flex gap-2">
-                <UButton icon="i-lucide-edit" size="md" color="primary" variant="solid" />
+                <UButton @click="handleEdit(quiz)" icon="i-lucide-edit" size="md" color="primary" variant="solid" />
                 <UButton @click="handleDelete(quiz)" icon="i-lucide-trash" size="md" color="error" variant="solid" />
               </div>
             </div>
@@ -53,6 +53,22 @@ const quizStore = useQuizAdminStore();
 onMounted(() => {
   quizStore.get();
 })
+
+/*
+ * This method handles quiz edition.
+ *
+ * 1- Set quiz object.
+ * 2- Open quiz modal.
+ *
+ * @params {Quiz} quiz - Quiz Object
+ * @returns {void}
+ * */
+
+function handleEdit(quiz:Quiz):void{
+  quizStore.quizBeingEdited = quiz;
+  quizStore.showQuizModal = true;
+}
+
 
 /*
  * This method handles quiz deletion.
