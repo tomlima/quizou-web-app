@@ -3,7 +3,7 @@
     fullscreen
     title="Quiz"
     :description="`Modo de ${modeMessage}`"
-    :dismissible="false"
+    :dismissible="true"
     v-model:open="quizStore.showQuizModal"
     :ui="{ footer: 'justify-end' }"
   >
@@ -42,7 +42,7 @@
             </UCard>
           </template>
 
-          <template #publish={item} v-if="wasPublished"> 
+          <template #publish={item} v-if="!wasPublished"> 
             <div class="w-full md:w-[700px]">
               <UAlert variant="subtle" class="p-15 mt-15" color="neutral">
                 <template #description>
@@ -233,7 +233,7 @@ function setDefaultValues(): void{
   quizStatus.value = QuizStatus.Draft;
   publishedAt.value = null;
   wasCreated.value = false;
-  wasPublished = false;
+  wasPublished.value = false;
 }
 
 

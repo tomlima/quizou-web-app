@@ -10,9 +10,16 @@
           </div>
         </template>
 
-        <div v-if="quizStore.quizzes && !quizStore.loading && quizStore.quizzes.items.length > 0">
+        <div v-if="quizStore.quizzes && !quizStore.loading && quizStore.quizzes?.items?.length > 0">
           <div class="flex gap-5">
             <div class="border border-gray-200 p-5 w-full md:w-[300px]" v-for="(quiz,index) in quizStore.quizzes.items">
+              <UBadge class="mb-5" v-if="quiz.publishedAt !== null" icon="i-lucide-calendar" size="md" color="primary" variant="outline">
+                Publicado em: {{new Date(quiz.publishedAt).toLocaleDateString('pt-BR')}}
+              </UBadge>
+              <UBadge class="mb-5" v-else icon="i-lucide-pencil" size="md" color="neutral" variant="outline">
+                Rascunho 
+              </UBadge>
+
               <div class="w-full h-[150px]" >
                 <img class="w-full h-full object-cover object-center" :src="`${config.public.imageBase}/${quiz.image}`">
               </div>
@@ -20,14 +27,14 @@
                 <h3 class="block">{{quiz.title}}</h3> 
               </div>
               <div class="flex gap-2">
-                <UButton @click="handleEdit(quiz)" icon="i-lucide-edit" size="md" color="primary" variant="solid" />
-                <UButton @click="handleDelete(quiz)" icon="i-lucide-trash" size="md" color="error" variant="solid" />
+                <UButton @click="handleEdit(quiz)" icon="i-lucide-edit" size="md" color="success" variant="soft" />
+                <UButton @click="handleDelete(quiz)" icon="i-lucide-trash" size="md" color="error" variant="soft" />
               </div>
             </div>
           </div>
         </div>
 
-        <div class="flex w-full items-center justify-center" v-else>
+        <div v-if="quizStore.quizzes && !quizStore.loading && quizStore.quizzes?.items?.length == 0" class="flex w-full items-center justify-center">
           <NotFound />
         </div>
 
