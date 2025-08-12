@@ -12,6 +12,7 @@ export interface Quiz {
   status: QuizStatus;
   createdAt: Date;
   updatedAt: Date;
+  publishedAt: Date;
   featured: boolean;
   category: Category;
   image: string;

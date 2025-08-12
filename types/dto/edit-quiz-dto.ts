@@ -9,4 +9,5 @@ export interface EditQuizDto {
   Tags: Number[];
   PublishedAt: Date;
   Image: string;
+  Featured: boolean;
 }

@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: "http://localhost:5000/api/v1",
+      apiBase: "http://172.31.240.1:5000/api/v1",
       imageBase: "https://quizou.s3.amazonaws.com/quizzes"
     }
   },

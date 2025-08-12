@@ -74,17 +74,6 @@ const items = ref<NavigationMenuItem[][]>([
         },
       ]
     },
-    {
-      label: 'Destaques',
-      icon: 'i-lucide-flame',
-      children: [
-        {
-          label: 'Meus destaques',
-          icon: 'i-lucide-scroll-text',
-          description: 'Use NuxtLink with superpowers.'
-        },
-      ]
-    }
   ],
 ])
 </script>

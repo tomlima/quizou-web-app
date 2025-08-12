@@ -314,6 +314,7 @@ async function saveQuizDraft():void{
 /* This method publish a quiz.
  *
  * 1- Set status as Active.
+ * 2- Set publish date
  * 2- Get the payload object.
  * 3- Send objeto to store.
  *

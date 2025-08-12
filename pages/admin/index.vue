@@ -29,6 +29,12 @@
               <div class="flex gap-2">
                 <UButton @click="handleEdit(quiz)" icon="i-lucide-edit" size="md" color="success" variant="soft" />
                 <UButton @click="handleDelete(quiz)" icon="i-lucide-trash" size="md" color="error" variant="soft" />
+                <UButton 
+                  @click="handleFeatured(quiz)" 
+                  :icon="quiz.featured ? 'i-lucide-eye' : 'i-lucide-eye-closed'" 
+                  size="md" color="primary" 
+                  :variant="quiz.featured ? 'solid' : 'soft'" 
+                />
               </div>
             </div>
           </div>
@@ -43,7 +49,7 @@
   </UContainer>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" async>
 import type { Quiz } from "@/types/entity/quiz";
 import type { PagedResult } from "@/types/entity/paged-result"
 import { ref } from "vue";
@@ -57,9 +63,8 @@ const page = ref(5);
 const config = useRuntimeConfig();
 const quizStore = useQuizAdminStore();
 
-onMounted(() => {
-  quizStore.get();
-})
+await quizStore.get();
+
 
 /*
  * This method handles quiz edition.
@@ -75,6 +80,40 @@ function handleEdit(quiz:Quiz):void{
   quizStore.quizBeingEdited = quiz;
   quizStore.showQuizModal = true;
 }
+
+/*
+ * This method handles the featured .
+ *
+ * 1- Set quiz object.
+ * 2- Open quiz modal.
+ *
+ * @params {Quiz} quiz - Quiz Object
+ * @returns {void}
+ * */
+
+async function handleFeatured(quiz:Quiz):Promise<void> {
+  const payload: QuizDTO = {
+    Id: quiz.id,
+    Title: quiz.title,
+    Difficulty:quiz.difficulty,
+    Description:quiz.description,
+    Time:quiz.time,
+    Status:quiz.status,
+    CategoryId:quiz.category.id,
+    Image: quiz.image,
+    PublishedAt: quiz.publishedAt,
+    Tags: quiz.tags.map(tag => tag.id),
+    Featured: !quiz.featured
+  };
+  
+  // Update featured status on database
+  await quizStore.edit(payload);
+
+  // Update feature status on state
+  const quizIndex = quizStore.quizzes.items.findIndex(q => q.id === quiz.id);
+  quizStore.quizzes.items[quizIndex].featured = !quiz.featured;
+}
+
 
 
 /*

@@ -20,19 +20,16 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
     */
     async get(): Promise<void> {
       const config = useRuntimeConfig();
-      this.loading = true;
       const toast = useToastMessage();
       try {
-        const response: Response = await fetch(`${config.public.apiBase}/quizzes`);
+        const response: Response = await fetch(`http://localhost:5000/api/v1/quizzes/`);
         if (!response.ok) {
           throw new Error();
         }
         const result: PagedResult<Quiz> = await response.json();
         this.quizzes = result;
       } catch (error) {
-        toast('error', 'Erro ao carregar os quizzes');
-      } finally {
-        this.loading = false;
+        toast('error', `Erro ao carregar os quizzes:  ${error}`);
       }
     },
 
@@ -122,7 +119,8 @@ export const useQuizAdminStore = defineStore("quiz-admin", {
               Tags: quiz?.Tags,
               Image: image,
               Status: Number(quiz?.Status),
-              PublishedAt: quiz?.PublishedAt
+              PublishedAt: quiz?.PublishedAt,
+              Featured: quiz?.Featured
             }
           ),
         });
