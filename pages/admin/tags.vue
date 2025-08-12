@@ -19,12 +19,9 @@
           </div>
         </template>
       
-        <div v-if="data && !tagStore.loading && data.length > 0">
+        <div v-if="data && data.length > 0">
           <UTable 
             ref="table"
-            :loading="tagStore.loading" 
-            loading-color="primary" 
-            loading-animation="carousel" 
             :data="data" 
             :columns="columns"
             v-model:column-filters="columnFilters"
@@ -43,7 +40,6 @@
                 />
               </UDropdownMenu>
             </template>
-          
           </UTable>
 
           <div class="flex justify-center border-t border-default pt-4">
@@ -65,7 +61,7 @@
   </UContainer>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" async>
 import { ref,onMounted,computed } from "vue"
 import { useTagStore } from "@/stores/tag"
 import { getPaginationRowModel } from '@tanstack/vue-table'
@@ -78,6 +74,8 @@ const showToast = useToastMessage();
 
 const table = useTemplateRef('table')
 const data = computed(() => tagStore.tags?.items || [])
+tagStore.fetchTags();
+
 const columns: TableColumn<Tag>[] = [
   {
     accessorKey: 'id',
@@ -110,9 +108,7 @@ const columnFilters = ref([
 ])
 
 
-onMounted(() => {
-    tagStore.fetchTags();
-})
+
 
 
 function getDropdownActions(tag:Tag): DropdownMenuItem[][] {
@@ -140,7 +136,6 @@ function handleEdit(tag: Tag) {
 async function handleDelete(tag: Tag) {
   await tagStore.deleteTag(tag);  
 }
-
 </script>
 
 

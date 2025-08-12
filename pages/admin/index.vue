@@ -65,7 +65,6 @@ const quizStore = useQuizAdminStore();
 
 await quizStore.get();
 
-
 /*
  * This method handles quiz edition.
  *
@@ -75,7 +74,6 @@ await quizStore.get();
  * @params {Quiz} quiz - Quiz Object
  * @returns {void}
  * */
-
 function handleEdit(quiz:Quiz):void{
   quizStore.quizBeingEdited = quiz;
   quizStore.showQuizModal = true;
@@ -90,7 +88,6 @@ function handleEdit(quiz:Quiz):void{
  * @params {Quiz} quiz - Quiz Object
  * @returns {void}
  * */
-
 async function handleFeatured(quiz:Quiz):Promise<void> {
   const payload: QuizDTO = {
     Id: quiz.id,
@@ -113,8 +110,6 @@ async function handleFeatured(quiz:Quiz):Promise<void> {
   const quizIndex = quizStore.quizzes.items.findIndex(q => q.id === quiz.id);
   quizStore.quizzes.items[quizIndex].featured = !quiz.featured;
 }
-
-
 
 /*
  * This method handles quiz deletion.
@@ -141,9 +136,7 @@ function handleDelete(quiz:Quiz):void{
       }
     }]
   })
-
 }
-
 </script>
 
 
