@@ -22,7 +22,7 @@
           </div>
 
           <ClientOnly>
-            <ULink to="/perfil" v-if="isAuthenticated">
+            <ULink to="/" v-if="isAuthenticated">
               <UChip inset>
                 <UAvatar
                   size="2xl"
@@ -98,25 +98,6 @@ const items = computed<NavigationMenuItem[][]>(() => {
       ],
     }
   ];
-
-  if(auth.isAuthenticated){
-    menu.push(
-      {
-        label: "Sair",
-        icon: "i-lucide-log-out",
-        to: "/logout",
-        meta: { customClass: "logout" },
-      },
-    )
-  }else{
-    menu.push(
-      {
-        label: "Login",
-        icon: "i-lucide-key-round",
-        to: "/login",
-      },
-    )
-  }
 
   if(auth.isAuthenticated && userRole.value == "Admin" ){
     menu.push(

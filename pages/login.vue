@@ -28,21 +28,6 @@
         <UButton type="submit"> Submit </UButton>
       </UForm>
 
-      <template #footer>
-        <div class="mt-5 flex flex-col justify-center items-center">
-          <span
-            >Ainda não tem conta? crie a sua
-            <NuxtLink class="text-primary" to="/nova-conta"
-              >aqui</NuxtLink
-            ></span
-          >
-          <span
-            ><NuxtLink class="text-primary" to="/nova-conta"
-              >Esqueci minha senha</NuxtLink
-            ></span
-          >
-        </div>
-      </template>
     </UCard>
   </UContainer>
 </template>
